@@ -1,0 +1,6 @@
+{
+  "name": "dawd-server",
+  "dependencies": {
+    "express": "^4.15.0"
+  }
+}
