@@ -8,7 +8,7 @@ var ast = require('./ast');
 
 \s+      ;
 
-\".*?\" { return 'TEXT'; }
+\".*?\" { yytext = yytext.slice(1, yytext.length - 1); return 'TEXT'; }
 
 "END"    { return 'END'; }
 "REPORT" { return 'REPORT'; }
