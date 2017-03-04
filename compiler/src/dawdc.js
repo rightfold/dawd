@@ -1,3 +1,5 @@
+'use strict';
+
 var ast = require('./ast');
 var check = require('./check');
 var codegen = require('./codegen');

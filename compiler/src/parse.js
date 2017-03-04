@@ -1,3 +1,5 @@
+'use strict';
+
 var grammar = require('./grammar');
 
 function parse(text) {

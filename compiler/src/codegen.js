@@ -1,3 +1,5 @@
+'use strict';
+
 var ast = require('./ast');
 var type = require('./type');
 

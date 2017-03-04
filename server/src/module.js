@@ -1,3 +1,5 @@
+'use strict';
+
 function ReportModule(name, level, render) {
   this.name = name;
   this.level = level;
