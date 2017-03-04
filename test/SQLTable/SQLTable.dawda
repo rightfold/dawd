@@ -1,5 +1,7 @@
 REPORT SQLTable
 
+SET TITLE "SQL Table Example"
+
 SQL TABLE "VALUES ('A', 'B'), ('C', 'D')"
 
 SQL TABLE "VALUES ($1, $2), ($3, $4)"

@@ -169,6 +169,9 @@ function codegenReportModule($module, level) {
 }
 
 function codegenStatement(statement, next) {
+  if (statement instanceof ast.SetTitleStatement) {
+    return codegenSetTitleStatement(statement, next);
+  }
   if (statement instanceof ast.SQLTableStatement) {
     return codegenSQLTableStatement(statement, next);
   }
@@ -176,6 +179,29 @@ function codegenStatement(statement, next) {
     return codegenWriteStatement(statement, next);
   }
   throw Error('Unknown statement class: ' + statement.constructor.name);
+}
+
+function codegenSetTitleStatement(statement, next) {
+  var text = codegenExpression(statement.text);
+  return [
+    {
+      type: 'ExpressionStatement',
+      expression: {
+        type: 'CallExpression',
+        callee: {
+          type: 'StaticMemberExpression',
+          object: {
+            type: 'IdentifierExpression',
+            name: 'document',
+          },
+          property: 'setTitle',
+        },
+        arguments: [
+          text,
+        ],
+      },
+    },
+  ].concat(next);
 }
 
 function codegenSQLTableStatement(statement, next) {

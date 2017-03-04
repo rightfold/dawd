@@ -23,6 +23,7 @@ function render(dbPool, layout, dawdModule, $arguments, callback) {
     var html;
     try {
       html = mustache.render(layout, {
+        title: document.title,
         body: document.html,
       });
     } catch (e) {

@@ -11,6 +11,10 @@ function Parameter(name, type) {
   this.type = type;
 }
 
+function SetTitleStatement(text) {
+  this.text = text;
+}
+
 function SQLTableStatement(query, $arguments) {
   this.query = query;
   this.arguments = $arguments;
@@ -43,6 +47,7 @@ module.exports = {
 
   Parameter: Parameter,
 
+  SetTitleStatement: SetTitleStatement,
   SQLTableStatement: SQLTableStatement,
   WriteStatement: WriteStatement,
 

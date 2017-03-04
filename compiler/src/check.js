@@ -22,6 +22,10 @@ function checkReportModule($module) {
 }
 
 function checkStatement(context, statement) {
+  if (statement instanceof ast.SetTitleStatement) {
+    checkSetTitleStatement(context, statement);
+    return;
+  }
   if (statement instanceof ast.SQLTableStatement) {
     checkSQLTableStatement(context, statement);
     return;
@@ -31,6 +35,13 @@ function checkStatement(context, statement) {
     return;
   }
   throw Error('Unknown statement class: ' + statement.constructor.name);
+}
+
+function checkSetTitleStatement(context, statement) {
+  var textType = checkExpression(context, statement.text);
+  if (textType !== type.TextType.instance) {
+    throw Error('Argument to SET TITLE statement is not of type TEXT.');
+  }
 }
 
 function checkSQLTableStatement(context, statement) {

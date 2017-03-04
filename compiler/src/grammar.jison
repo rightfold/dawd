@@ -16,8 +16,10 @@ var ast = require('./ast');
 "END"       { return 'END'; }
 "PARAMETER" { return 'PARAMETER'; }
 "REPORT"    { return 'REPORT'; }
+"SET"       { return 'SET'; }
 "SQL"       { return 'SQL'; }
 "TABLE"     { return 'TABLE'; }
+"TITLE"     { return 'TITLE'; }
 "TYPE"      { return 'TYPE'; }
 "WRITE"     { return 'WRITE'; }
 
@@ -53,8 +55,13 @@ statement_list
   ;
 
 statement
-  : sql_table_statement
+  : set_title_statement
+  | sql_table_statement
   | write_statement
+  ;
+
+set_title_statement
+  : SET TITLE expression { $$ = new ast.SetTitleStatement($3); }
   ;
 
 sql_table_statement

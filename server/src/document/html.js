@@ -6,8 +6,13 @@ function escape(text) {
 
 function HTMLDocument(dbPool) {
   this._dbPool = dbPool;
+  this.title = '';
   this.html = '';
 }
+
+HTMLDocument.prototype.setTitle = function(text) {
+  this.title = text;
+};
 
 HTMLDocument.prototype.write = function(text) {
   this.html += '<p>';
