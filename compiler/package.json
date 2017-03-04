@@ -2,5 +2,8 @@
   "name": "dawd-compiler",
   "devDependencies": {
     "jison": "^0.4.17"
+  },
+  "dependencies": {
+    "shift-codegen": "^5.0.2"
   }
 }

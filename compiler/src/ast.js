@@ -11,10 +11,18 @@ function TextExpression(text) {
   this.text = text;
 }
 
+var Level = {
+  System: 0,
+  Application: 1,
+  Installation: 2,
+};
+
 module.exports = {
   ReportModule: ReportModule,
 
   WriteStatement: WriteStatement,
 
   TextExpression: TextExpression,
+
+  Level: Level,
 };
