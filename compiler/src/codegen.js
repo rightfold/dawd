@@ -42,7 +42,7 @@ function codegenReportModule($module, level) {
                 {
                   type: 'BindingIdentifier',
                   name: '$module',
-                },
+                }
               ],
               rest: null,
             },
@@ -91,7 +91,11 @@ function codegenReportModule($module, level) {
                         name: null,
                         params: {
                           type: 'FormalParameters',
-                          items: [
+                          items: [,
+                            {
+                              type: 'BindingIdentifier',
+                              name: '$arguments',
+                            },
                             {
                               type: 'BindingIdentifier',
                               name: 'document',
@@ -105,7 +109,32 @@ function codegenReportModule($module, level) {
                         body: {
                           type: 'FunctionBody',
                           directives: [],
-                          statements: $module.body.reduceRight(function(next, statement) {
+                          statements: $module.parameters.map(function(parameter) {
+                            return {
+                              type: 'VariableDeclarationStatement',
+                              declaration: {
+                                type: 'VariableDeclaration',
+                                kind: 'var',
+                                declarators: [
+                                  {
+                                    type: 'VariableDeclarator',
+                                    binding: {
+                                      type: 'BindingIdentifier',
+                                      name: '$$' + parameter.name,
+                                    },
+                                    init: {
+                                      type: 'StaticMemberExpression',
+                                      object: {
+                                        type: 'IdentifierExpression',
+                                        name: '$arguments',
+                                      },
+                                      property: parameter.name,
+                                    },
+                                  }
+                                ],
+                              },
+                            };
+                          }).concat($module.body.reduceRight(function(next, statement) {
                             return codegenStatement(statement, next);
                           }, [
                             {
@@ -123,7 +152,7 @@ function codegenReportModule($module, level) {
                                 ],
                               },
                             },
-                          ]),
+                          ])),
                         },
                       },
                     ],
@@ -170,10 +199,20 @@ function codegenWriteStatement(statement, next) {
 }
 
 function codegenExpression(expression) {
+  if (expression instanceof ast.NamedExpression) {
+    return codegenNamedExpression(expression);
+  }
   if (expression instanceof ast.TextExpression) {
     return codegenTextExpression(expression);
   }
   throw Error('Unknown expression class: ' + expression.constructor.name);
+}
+
+function codegenNamedExpression(expression) {
+  return {
+    type: 'IdentifierExpression',
+    name: '$$' + expression.name,
+  };
 }
 
 function codegenTextExpression(expression) {

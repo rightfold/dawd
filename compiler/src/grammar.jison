@@ -10,9 +10,11 @@ var ast = require('./ast');
 
 \".*?\" { yytext = yytext.slice(1, yytext.length - 1); return 'TEXT'; }
 
-"END"    { return 'END'; }
-"REPORT" { return 'REPORT'; }
-"WRITE"  { return 'WRITE'; }
+"END"       { return 'END'; }
+"PARAMETER" { return 'PARAMETER'; }
+"REPORT"    { return 'REPORT'; }
+"TYPE"      { return 'TYPE'; }
+"WRITE"     { return 'WRITE'; }
 
 [A-Za-z][A-Za-z0-9]* { return 'IDENTIFIER'; }
 
@@ -29,8 +31,15 @@ module
   ;
 
 report_module
-  : REPORT IDENTIFIER statement_list END REPORT EOF
-      { $$ = new ast.ReportModule($2, $3); }
+  : REPORT IDENTIFIER parameter_list statement_list END REPORT EOF
+      { $$ = new ast.ReportModule($2, $3, $4); }
+  ;
+
+parameter_list
+  :
+      { $$ = [] }
+  | PARAMETER IDENTIFIER TYPE type parameter_list
+      { $$ = [new ast.Parameter($2, $4)].concat($5); }
   ;
 
 statement_list
@@ -47,9 +56,22 @@ write_statement
   ;
 
 expression
-  : text_expression
+  : named_expression
+  | text_expression
+  ;
+
+named_expression
+  : IDENTIFIER { $$ = new ast.NamedExpression($1); }
   ;
 
 text_expression
   : TEXT { $$ = new ast.TextExpression($1); }
+  ;
+
+type
+  : named_type
+  ;
+
+named_type
+  : IDENTIFIER { $$ = new ast.NamedType($1); }
   ;

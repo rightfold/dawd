@@ -12,9 +12,9 @@ levelPaths[$module.Level.System]       = 'system';
 levelPaths[$module.Level.Application]  = 'application';
 levelPaths[$module.Level.Installation] = 'installation';
 
-function render(layout, dawdModule, callback) {
+function render(layout, dawdModule, $arguments, callback) {
   var document = new document_html.HTMLDocument();
-  dawdModule.render(document, function(err) {
+  dawdModule.render($arguments, document, function(err) {
     if (err !== null) {
       callback(err, null);
       return;
@@ -39,7 +39,7 @@ function main() {
     var dawdModule = require(path.resolve(dawdModulePath))($module);
     var levelPath = levelPaths[dawdModule.level];
     app.get('/report/' + levelPath + '/' + dawdModule.name, function(req, res) {
-      render(layout, dawdModule, function(err, html) {
+      render(layout, dawdModule, req.query, function(err, html) {
         if (err !== null) {
           res.status(500);
           res.end();
