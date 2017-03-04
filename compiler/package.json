@@ -1,0 +1,6 @@
+{
+  "name": "dawd-compiler",
+  "devDependencies": {
+    "jison": "^0.4.17"
+  }
+}
