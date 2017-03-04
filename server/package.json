@@ -2,6 +2,7 @@
   "name": "dawd-server",
   "dependencies": {
     "express": "^4.15.0",
-    "mustache": "^2.3.0"
+    "mustache": "^2.3.0",
+    "pg": "^6.1.2"
   }
 }

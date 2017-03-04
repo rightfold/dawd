@@ -169,10 +169,59 @@ function codegenReportModule($module, level) {
 }
 
 function codegenStatement(statement, next) {
+  if (statement instanceof ast.SQLTableStatement) {
+    return codegenSQLTableStatement(statement, next);
+  }
   if (statement instanceof ast.WriteStatement) {
     return codegenWriteStatement(statement, next);
   }
   throw Error('Unknown statement class: ' + statement.constructor.name);
+}
+
+function codegenSQLTableStatement(statement, next) {
+  var $arguments = statement.arguments.map(function(argument) {
+    return codegenExpression(argument);
+  });
+  return [
+    {
+      type: 'ExpressionStatement',
+      expression: {
+        type: 'CallExpression',
+        callee: {
+          type: 'StaticMemberExpression',
+          object: {
+            type: 'IdentifierExpression',
+            name: 'document',
+          },
+          property: 'sqlTable',
+        },
+        arguments: [
+          {
+            type: 'LiteralStringExpression',
+            value: statement.query,
+          },
+          {
+            type: 'ArrayExpression',
+            elements: $arguments,
+          },
+          {
+            type: 'FunctionExpression',
+            isGenerator: false,
+            name: null,
+            params: {
+              type: 'FormalParameters',
+              items: [],
+            },
+            body: {
+              type: 'FunctionBody',
+              directives: [],
+              statements: next,
+            },
+          },
+        ],
+      },
+    },
+  ];
 }
 
 function codegenWriteStatement(statement, next) {
@@ -227,6 +276,7 @@ module.exports = {
   codegenReportModule: codegenReportModule,
 
   codegenStatement: codegenStatement,
+  codegenSQLTableStatement: codegenSQLTableStatement,
   codegenWriteStatement: codegenWriteStatement,
 
   codegenExpression: codegenExpression,

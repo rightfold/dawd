@@ -8,11 +8,16 @@ var ast = require('./ast');
 
 \s+      ;
 
+"," { return 'COMMA'; }
+
 \".*?\" { yytext = yytext.slice(1, yytext.length - 1); return 'TEXT'; }
 
+"ARGUMENTS" { return 'ARGUMENTS'; }
 "END"       { return 'END'; }
 "PARAMETER" { return 'PARAMETER'; }
 "REPORT"    { return 'REPORT'; }
+"SQL"       { return 'SQL'; }
+"TABLE"     { return 'TABLE'; }
 "TYPE"      { return 'TYPE'; }
 "WRITE"     { return 'WRITE'; }
 
@@ -48,11 +53,24 @@ statement_list
   ;
 
 statement
-  : write_statement
+  : sql_table_statement
+  | write_statement
+  ;
+
+sql_table_statement
+  : SQL TABLE TEXT
+      { $$ = new ast.SQLTableStatement($3, []); }
+  | SQL TABLE TEXT ARGUMENTS expression_list
+      { $$ = new ast.SQLTableStatement($3, $5); }
   ;
 
 write_statement
   : WRITE expression { $$ = new ast.WriteStatement($2); }
+  ;
+
+expression_list
+  : expression { $$ = [$1]; }
+  | expression COMMA expression_list { $$ = [$1].concat($3); }
   ;
 
 expression

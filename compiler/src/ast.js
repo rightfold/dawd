@@ -11,6 +11,11 @@ function Parameter(name, type) {
   this.type = type;
 }
 
+function SQLTableStatement(query, $arguments) {
+  this.query = query;
+  this.arguments = $arguments;
+}
+
 function WriteStatement(text) {
   this.text = text;
 }
@@ -38,6 +43,7 @@ module.exports = {
 
   Parameter: Parameter,
 
+  SQLTableStatement: SQLTableStatement,
   WriteStatement: WriteStatement,
 
   NamedExpression: NamedExpression,

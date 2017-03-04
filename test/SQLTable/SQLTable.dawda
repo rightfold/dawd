@@ -1,0 +1,8 @@
+REPORT SQLTable
+
+SQL TABLE "VALUES ('A', 'B'), ('C', 'D')"
+
+SQL TABLE "VALUES ($1, $2), ($3, $4)"
+ARGUMENTS "A", "B", "C", "D"
+
+END REPORT

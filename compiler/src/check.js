@@ -22,11 +22,21 @@ function checkReportModule($module) {
 }
 
 function checkStatement(context, statement) {
+  if (statement instanceof ast.SQLTableStatement) {
+    checkSQLTableStatement(context, statement);
+    return;
+  }
   if (statement instanceof ast.WriteStatement) {
     checkWriteStatement(context, statement);
     return;
   }
   throw Error('Unknown statement class: ' + statement.constructor.name);
+}
+
+function checkSQLTableStatement(context, statement) {
+  statement.arguments.forEach(function(argument) {
+    checkExpression(context, argument);
+  });
 }
 
 function checkWriteStatement(context, statement) {
