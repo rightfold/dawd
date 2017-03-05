@@ -1,14 +1,32 @@
 'use strict';
 
+function ActionModule(name, parameters, body) {
+  this.name = name;
+  this.parameters = parameters;
+  this.body = body;
+}
+
 function ReportModule(name, parameters, body) {
   this.name = name;
   this.parameters = parameters;
   this.body = body;
 }
 
+function ModuleReference(level, name) {
+  this.level = level;
+  this.name = name;
+}
+
 function Parameter(name, type) {
   this.name = name;
   this.type = type;
+}
+
+function FormAutomaticStatement($module) {
+  this.module = $module;
+
+  this.moduleType = null;
+  this.moduleParameters = null;
 }
 
 function SetTitleStatement(text) {
@@ -36,6 +54,11 @@ function NamedType(name) {
   this.name = name;
 }
 
+var ModuleType = {
+  Action: 0,
+  Report: 1,
+};
+
 var Level = {
   System: 0,
   Application: 1,
@@ -43,10 +66,14 @@ var Level = {
 };
 
 module.exports = {
+  ActionModule: ActionModule,
   ReportModule: ReportModule,
+
+  ModuleReference: ModuleReference,
 
   Parameter: Parameter,
 
+  FormAutomaticStatement: FormAutomaticStatement,
   SetTitleStatement: SetTitleStatement,
   SQLTableStatement: SQLTableStatement,
   WriteStatement: WriteStatement,
@@ -55,6 +82,8 @@ module.exports = {
   TextExpression: TextExpression,
 
   NamedType: NamedType,
+
+  ModuleType: ModuleType,
 
   Level: Level,
 };

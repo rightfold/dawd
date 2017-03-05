@@ -12,16 +12,22 @@ var ast = require('./ast');
 
 \".*?\" { yytext = yytext.slice(1, yytext.length - 1); return 'TEXT'; }
 
-"ARGUMENTS" { return 'ARGUMENTS'; }
-"END"       { return 'END'; }
-"PARAMETER" { return 'PARAMETER'; }
-"REPORT"    { return 'REPORT'; }
-"SET"       { return 'SET'; }
-"SQL"       { return 'SQL'; }
-"TABLE"     { return 'TABLE'; }
-"TITLE"     { return 'TITLE'; }
-"TYPE"      { return 'TYPE'; }
-"WRITE"     { return 'WRITE'; }
+"ACTION"       { return 'ACTION'; }
+"APPLICATION"  { return 'APPLICATION'; }
+"ARGUMENTS"    { return 'ARGUMENTS'; }
+"AUTOMATIC"    { return 'AUTOMATIC'; }
+"END"          { return 'END'; }
+"FORM"         { return 'FORM'; }
+"INSTALLATION" { return 'INSTALLATION'; }
+"PARAMETER"    { return 'PARAMETER'; }
+"REPORT"       { return 'REPORT'; }
+"SET"          { return 'SET'; }
+"SQL"          { return 'SQL'; }
+"SYSTEM"       { return 'SYSTEM'; }
+"TABLE"        { return 'TABLE'; }
+"TITLE"        { return 'TITLE'; }
+"TYPE"         { return 'TYPE'; }
+"WRITE"        { return 'WRITE'; }
 
 [A-Za-z][A-Za-z0-9]* { return 'IDENTIFIER'; }
 
@@ -29,17 +35,41 @@ var ast = require('./ast');
 
 /lex
 
-%start module
+%start start
 
 %%
 
+start
+  : module_list EOF { return $1; }
+  ;
+
+module_list
+  :                    { $$ = []; }
+  | module module_list { $$ = [$1].concat($2); }
+  ;
+
 module
-  : report_module { return $1; }
+  : action_module
+  | report_module
+  ;
+
+action_module
+  : ACTION IDENTIFIER parameter_list statement_list END ACTION
+      { $$ = new ast.ActionModule($2, $3, $4); }
   ;
 
 report_module
-  : REPORT IDENTIFIER parameter_list statement_list END REPORT EOF
+  : REPORT IDENTIFIER parameter_list statement_list END REPORT
       { $$ = new ast.ReportModule($2, $3, $4); }
+  ;
+
+module_reference
+  : SYSTEM IDENTIFIER
+      { $$ = new ast.ModuleReference(ast.Level.System, $2); }
+  | APPLICATION IDENTIFIER
+      { $$ = new ast.ModuleReference(ast.Level.Application, $2); }
+  | INSTALLATION IDENTIFIER
+      { $$ = new ast.ModuleReference(ast.Level.Installation, $2); }
   ;
 
 parameter_list
@@ -55,9 +85,15 @@ statement_list
   ;
 
 statement
-  : set_title_statement
+  : form_statement
+  | set_title_statement
   | sql_table_statement
   | write_statement
+  ;
+
+form_statement
+  : FORM AUTOMATIC module_reference
+      { $$ = new ast.FormAutomaticStatement($3); }
   ;
 
 set_title_statement

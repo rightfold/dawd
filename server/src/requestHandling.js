@@ -4,10 +4,25 @@ var document_html = require('./document/html');
 var $module = require('./module');
 var mustache = require('mustache');
 
-var levelPaths = {};
-levelPaths[$module.Level.System]       = 'system';
-levelPaths[$module.Level.Application]  = 'application';
-levelPaths[$module.Level.Installation] = 'installation';
+function requestMethod(dawdModule) {
+  if (dawdModule instanceof $module.ActionModule) {
+    return 'post';
+  }
+  if (dawdModule instanceof $module.ReportModule) {
+    return 'get';
+  }
+  throw Error('Unknown module class: ' + dawdModule.constructor.name);
+}
+
+function requestArguments(dawdModule, req) {
+  if (dawdModule instanceof $module.ActionModule) {
+    return req.body;
+  }
+  if (dawdModule instanceof $module.ReportModule) {
+    return req.query;
+  }
+  throw Error('Unknown module class: ' + dawdModule.constructor.name);
+}
 
 function render(dbPool, layout, dawdModule, $arguments, callback) {
   var document = new document_html.HTMLDocument(dbPool);
@@ -31,9 +46,12 @@ function render(dbPool, layout, dawdModule, $arguments, callback) {
 }
 
 function installModuleHandlers(dbPool, layout, app, dawdModule) {
-  var levelPath = levelPaths[dawdModule.level];
-  app.get('/report/' + levelPath + '/' + dawdModule.name, function(req, res) {
-    render(dbPool, layout, dawdModule, req.query, function(err, html) {
+  var moduleTypePath = $module.moduleTypePathSegment(dawdModule);
+  var levelPath = $module.levelPathSegment(dawdModule.level);
+  var method = requestMethod(dawdModule);
+  app[method]('/' + moduleTypePath + '/' + levelPath + '/' + dawdModule.name, function(req, res) {
+    var $arguments = requestArguments(dawdModule, req);
+    render(dbPool, layout, dawdModule, $arguments, function(err, html) {
       if (err !== null) {
         res.status(500);
         res.end();

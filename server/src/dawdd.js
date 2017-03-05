@@ -1,5 +1,6 @@
 'use strict';
 
+var bodyParser = require('body-parser');
 var express = require('express');
 var fs = require('fs');
 var $module = require('./module');
@@ -20,6 +21,7 @@ function main() {
   });
   var layout = fs.readFileSync(process.argv[2], 'utf8');
   var app = express();
+  app.use(bodyParser.urlencoded({extended: false}));
   process.argv.slice(3).forEach(function(dawdModulePath) {
     var dawdModule = moduleLoading.loadModule(dawdModulePath);
     requestHandling.installModuleHandlers(dbPool, layout, app, dawdModule);

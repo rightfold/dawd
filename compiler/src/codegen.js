@@ -4,13 +4,20 @@ var ast = require('./ast');
 var type = require('./type');
 
 function codegenModule($module, level) {
+  if ($module instanceof ast.ActionModule) {
+    return codegenActionModule($module, level);
+  }
   if ($module instanceof ast.ReportModule) {
     return codegenReportModule($module, level);
   }
   throw Error('Unknown module class: ' + $module.constructor.name);
 }
 
-function codegenReportModule($module, level) {
+var codegenActionModule = codegenActionOrReportModule;
+
+var codegenReportModule = codegenActionOrReportModule;
+
+function codegenActionOrReportModule($module, level) {
   return {
     type: 'Script',
     directives: [
@@ -60,7 +67,14 @@ function codegenReportModule($module, level) {
                         type: 'IdentifierExpression',
                         name: '$module',
                       },
-                      property: 'ReportModule',
+                      property: (function() {
+                        if ($module instanceof ast.ActionModule) {
+                          return 'ActionModule';
+                        }
+                        if ($module instanceof ast.ReportModule) {
+                          return 'ReportModule';
+                        }
+                      })(),
                     },
                     arguments: [
                       {
@@ -169,6 +183,9 @@ function codegenReportModule($module, level) {
 }
 
 function codegenStatement(statement, next) {
+  if (statement instanceof ast.FormAutomaticStatement) {
+    return codegenFormAutomaticStatement(statement, next);
+  }
   if (statement instanceof ast.SetTitleStatement) {
     return codegenSetTitleStatement(statement, next);
   }
@@ -179,6 +196,48 @@ function codegenStatement(statement, next) {
     return codegenWriteStatement(statement, next);
   }
   throw Error('Unknown statement class: ' + statement.constructor.name);
+}
+
+function codegenFormAutomaticStatement(statement, next) {
+  return [
+    {
+      type: 'ExpressionStatement',
+      expression: {
+        type: 'CallExpression',
+        callee: {
+          type: 'StaticMemberExpression',
+          object: {
+            type: 'IdentifierExpression',
+            name: 'document',
+          },
+          property: 'formAutomatic',
+        },
+        arguments: [
+          {
+            type: 'LiteralNumericExpression',
+            value: statement.moduleType,
+          },
+          {
+            type: 'LiteralNumericExpression',
+            value: statement.module.level,
+          },
+          {
+            type: 'LiteralStringExpression',
+            value: statement.module.name,
+          },
+          {
+            type: 'ArrayExpression',
+            elements: Array.from(statement.moduleParameters.keys()).map(function(parameter) {
+              return {
+                type: 'LiteralStringExpression',
+                value: parameter,
+              };
+            }),
+          },
+        ],
+      },
+    },
+  ].concat(next);
 }
 
 function codegenSetTitleStatement(statement, next) {
@@ -299,6 +358,7 @@ function codegenTextExpression(expression) {
 
 module.exports = {
   codegenModule: codegenModule,
+  codegenActionModule: codegenActionModule,
   codegenReportModule: codegenReportModule,
 
   codegenStatement: codegenStatement,

@@ -1,5 +1,7 @@
 'use strict';
 
+var $module = require('../module');
+
 function escape(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 }
@@ -9,6 +11,28 @@ function HTMLDocument(dbPool) {
   this.title = '';
   this.html = '';
 }
+
+HTMLDocument.prototype.formAutomatic = function(moduleType, moduleLevel, moduleName, moduleParameters) {
+  var self = this;
+  var method;
+  switch (moduleType) {
+    case $module.Type.Action:
+      method = 'post';
+      break;
+    case $module.Type.Report:
+      method = 'get';
+      break;
+  }
+  this.html += '<form method="' + method + '" action="/'
+    + $module.moduleTypePathSegment(moduleType) + '/'
+    + $module.levelPathSegment(moduleLevel) + '/'
+    + moduleName + '">';
+  moduleParameters.forEach(function(parameter) {
+    self.html += '<input type="text" name="' + parameter + '">';
+  });
+  this.html += '<input type="submit">'
+  this.html += '</form>';
+};
 
 HTMLDocument.prototype.setTitle = function(text) {
   this.title = text;
