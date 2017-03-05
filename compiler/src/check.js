@@ -35,8 +35,6 @@ var checkActionModule = checkActionOrReportModule;
 var checkReportModule = checkActionOrReportModule;
 
 function checkActionOrReportModule(context, $module) {
-  var localContext = context.derive();
-
   var moduleType;
   if ($module instanceof ast.ActionModule) {
     moduleType = ast.ModuleType.Action;
@@ -48,6 +46,9 @@ function checkActionOrReportModule(context, $module) {
 
   var moduleEntry = new Module(moduleType, new Map());
   context.modules.set($module.name, moduleEntry);
+
+  var localContext = context.derive();
+
   $module.parameters.forEach(function(parameter) {
     var $type = checkType(parameter.type);
     moduleEntry.parameterTypes.set(parameter.name, $type);
