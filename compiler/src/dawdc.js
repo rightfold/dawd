@@ -10,7 +10,8 @@ var shiftCodegen = require('shift-codegen');
 var util = require('util');
 
 function main() {
-  var sourcePath = process.argv[2];
+  var sourcePath = process.argv[3];
+  var targetPath = process.argv[2];
 
   var text = fs.readFileSync(sourcePath, 'utf8');
 
@@ -25,7 +26,7 @@ function main() {
   $ast.forEach(function($module) {
     var esAST = codegen.codegenModule($module, ast.Level.Application);
     var esSource = shiftCodegen.default(esAST);
-    var esPath = path.dirname(sourcePath) + '/' + $module.name + '.js';
+    var esPath = targetPath + '/' + $module.name + '.js';
     fs.writeFileSync(esPath, esSource);
   });
 }
