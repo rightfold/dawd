@@ -4,6 +4,7 @@ var express = require('express');
 var document_html = require('./document/html');
 var fs = require('fs');
 var $module = require('./module');
+var moduleLoading = require('./moduleLoading');
 var mustache = require('mustache');
 var path = require('path');
 var pg = require('pg');
@@ -47,7 +48,7 @@ function main() {
   var layout = fs.readFileSync(process.argv[2], 'utf8');
   var app = express();
   process.argv.slice(3).forEach(function(dawdModulePath) {
-    var dawdModule = require(path.resolve(dawdModulePath))($module);
+    var dawdModule = moduleLoading.loadModule(dawdModulePath);
     var levelPath = levelPaths[dawdModule.level];
     app.get('/report/' + levelPath + '/' + dawdModule.name, function(req, res) {
       render(dbPool, layout, dawdModule, req.query, function(err, html) {
