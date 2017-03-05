@@ -40,7 +40,7 @@ HTMLDocument.prototype.setTitle = function(text) {
 
 HTMLDocument.prototype.write = function(text) {
   this.html += '<p>';
-  this.html += escape(text);
+  this.html += escape(text).replace(/\n/g, '<br>');
   this.html += '</p>';
 };
 
