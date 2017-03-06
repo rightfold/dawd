@@ -25,7 +25,7 @@ function requestArguments(dawdModule, req) {
   throw Error('Unknown module class: ' + dawdModule.constructor.name);
 }
 
-function renderHTML(dbPool, layout, dawdModule, $arguments, callback) {
+function renderHTML(layout, formats, dbPool, dawdModule, $arguments, callback) {
   var document = new document_html.HTMLDocument();
   dawdModule.render(dbPool, $arguments, document, function(err) {
     if (err !== null) {
@@ -37,6 +37,7 @@ function renderHTML(dbPool, layout, dawdModule, $arguments, callback) {
       html = mustache.render(layout, {
         title: document.title,
         body: document.html,
+        formats: formats,
       });
     } catch (e) {
       callback(e, null);
@@ -46,7 +47,7 @@ function renderHTML(dbPool, layout, dawdModule, $arguments, callback) {
   });
 }
 
-function renderText(dbPool, layout, dawdModule, $arguments, callback) {
+function renderText(dbPool, dawdModule, $arguments, callback) {
   var document = new document_text.TextDocument();
   dawdModule.render(dbPool, $arguments, document, function(err) {
     if (err !== null) {
@@ -64,14 +65,19 @@ function installModuleHandlers(dbPool, layout, app, dawdModule) {
   var levelPath = $module.levelPathSegment(dawdModule.level);
   var basePath = '/' + moduleTypePath + '/' + levelPath + '/' + dawdModule.name;
 
-  register(basePath, 'text/html', renderHTML);
-  register(basePath + '.html', 'text/html', renderHTML);
+  var formats = [
+    {url: basePath,          name: 'HTML'},
+    {url: basePath + '.txt', name: 'Plain Text'},
+  ];
+
+  register(basePath, 'text/html', renderHTML.bind(null, layout, formats));
+  register(basePath + '.html', 'text/html', renderHTML.bind(null, layout, formats));
   register(basePath + '.txt', 'text/plain', renderText);
 
   function register(path, contentType, render) {
     app[method](path, function(req, res) {
       var $arguments = requestArguments(dawdModule, req);
-      render(dbPool, layout, dawdModule, $arguments, function(err, body) {
+      render(dbPool, dawdModule, $arguments, function(err, body) {
         if (err !== null) {
           res.status(500);
           res.end();

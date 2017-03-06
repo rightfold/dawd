@@ -6,5 +6,10 @@
   </head>
   <body>
     {{&body}}
+    <ul>
+      {{#formats}}
+        <li><a href="{{url}}">{{name}}</a></li>
+      {{/formats}}
+    </ul>
   </body>
 </html>
