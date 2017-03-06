@@ -10,7 +10,8 @@ var ast = require('./ast');
 
 "," { return 'COMMA'; }
 
-\"(.|\n)*?\" { yytext = yytext.slice(1, yytext.length - 1); return 'TEXT'; }
+\"\"\"(.|\n)*?\"\"\" { yytext = yytext.slice(3, yytext.length - 3); return 'TEXT'; }
+\"(.|\n)*?\"         { yytext = yytext.slice(1, yytext.length - 1); return 'TEXT'; }
 
 "ACTION"       { return 'ACTION'; }
 "APPLICATION"  { return 'APPLICATION'; }
