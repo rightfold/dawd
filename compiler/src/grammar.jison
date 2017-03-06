@@ -20,6 +20,7 @@ var ast = require('./ast');
 "EXECUTE"      { return 'EXECUTE'; }
 "FORM"         { return 'FORM'; }
 "INSTALLATION" { return 'INSTALLATION'; }
+"NONE"         { return 'NONE'; }
 "PARAMETER"    { return 'PARAMETER'; }
 "REPORT"       { return 'REPORT'; }
 "SET"          { return 'SET'; }
@@ -121,8 +122,13 @@ write_statement
   ;
 
 expression_list
+  : NONE                      { $$ = []; }
+  | non_empty_expression_list { $$ = $1; }
+  ;
+
+non_empty_expression_list
   : expression { $$ = [$1]; }
-  | expression COMMA expression_list { $$ = [$1].concat($3); }
+  | expression COMMA non_empty_expression_list { $$ = [$1].concat($3); }
   ;
 
 expression
