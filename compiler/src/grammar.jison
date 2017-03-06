@@ -17,6 +17,7 @@ var ast = require('./ast');
 "ARGUMENTS"    { return 'ARGUMENTS'; }
 "AUTOMATIC"    { return 'AUTOMATIC'; }
 "END"          { return 'END'; }
+"EXECUTE"      { return 'EXECUTE'; }
 "FORM"         { return 'FORM'; }
 "INSTALLATION" { return 'INSTALLATION'; }
 "PARAMETER"    { return 'PARAMETER'; }
@@ -85,10 +86,18 @@ statement_list
   ;
 
 statement
-  : form_statement
+  : execute_sql_statement
+  | form_statement
   | set_title_statement
   | sql_table_statement
   | write_statement
+  ;
+
+execute_sql_statement
+  : EXECUTE SQL TEXT
+      { $$ = new ast.ExecuteSQLStatement($3, []); }
+  | EXECUTE SQL TEXT ARGUMENTS expression_list
+      { $$ = new ast.ExecuteSQLStatement($3, $5); }
   ;
 
 form_statement

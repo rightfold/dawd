@@ -1,0 +1,10 @@
+REPORT ExecuteSQL
+
+SET TITLE "Execute SQL Example"
+
+EXECUTE SQL "SELECT 'A'"
+
+EXECUTE SQL "SELECT $1 :: text"
+ARGUMENTS "A"
+
+END REPORT

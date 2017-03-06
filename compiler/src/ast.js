@@ -22,6 +22,11 @@ function Parameter(name, type) {
   this.type = type;
 }
 
+function ExecuteSQLStatement(query, $arguments) {
+  this.query = query;
+  this.arguments = $arguments;
+}
+
 function FormAutomaticStatement($module) {
   this.module = $module;
 
@@ -73,6 +78,7 @@ module.exports = {
 
   Parameter: Parameter,
 
+  ExecuteSQLStatement: ExecuteSQLStatement,
   FormAutomaticStatement: FormAutomaticStatement,
   SetTitleStatement: SetTitleStatement,
   SQLTableStatement: SQLTableStatement,

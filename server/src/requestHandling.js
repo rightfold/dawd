@@ -25,8 +25,8 @@ function requestArguments(dawdModule, req) {
 }
 
 function render(dbPool, layout, dawdModule, $arguments, callback) {
-  var document = new document_html.HTMLDocument(dbPool);
-  dawdModule.render($arguments, document, function(err) {
+  var document = new document_html.HTMLDocument();
+  dawdModule.render(dbPool, $arguments, document, function(err) {
     if (err !== null) {
       callback(err, null);
       return;

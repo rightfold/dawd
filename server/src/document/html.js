@@ -6,8 +6,7 @@ function escape(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 }
 
-function HTMLDocument(dbPool) {
-  this._dbPool = dbPool;
+function HTMLDocument() {
   this.title = '';
   this.html = '';
 }
@@ -44,9 +43,9 @@ HTMLDocument.prototype.write = function(text) {
   this.html += '</p>';
 };
 
-HTMLDocument.prototype.sqlTable = function(query, $arguments, callback) {
+HTMLDocument.prototype.sqlTable = function(dbPool, query, $arguments, callback) {
   var self = this;
-  this._dbPool.connect(function(err, client, done) {
+  dbPool.connect(function(err, client, done) {
     if (err !== null) {
       callback(err);
       return;

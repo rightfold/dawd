@@ -3,6 +3,52 @@
 var ast = require('./ast');
 var type = require('./type');
 
+function checkErrStatement() {
+  return {
+    type: 'IfStatement',
+    test: {
+      type: 'BinaryExpression',
+      left: {
+        type: 'IdentifierExpression',
+        name: 'err',
+      },
+      operator: '!==',
+      right: {
+        type: 'LiteralNullExpression',
+      },
+    },
+    consequent: {
+      type: 'BlockStatement',
+      block: {
+        type: 'Block',
+        statements: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'CallExpression',
+              callee: {
+                type: 'IdentifierExpression',
+                name: 'callback',
+              },
+              arguments: [
+                {
+                  type: 'IdentifierExpression',
+                  name: 'err',
+                },
+              ],
+            },
+          },
+          {
+            type: 'ReturnStatement',
+            expression: null,
+          },
+        ],
+      },
+    },
+    alternate: null,
+  };
+}
+
 function codegenModule($module, level) {
   if ($module instanceof ast.ActionModule) {
     return codegenActionModule($module, level);
@@ -108,6 +154,10 @@ function codegenActionOrReportModule($module, level) {
                           items: [,
                             {
                               type: 'BindingIdentifier',
+                              name: 'dbPool',
+                            },
+                            {
+                              type: 'BindingIdentifier',
                               name: '$arguments',
                             },
                             {
@@ -183,6 +233,9 @@ function codegenActionOrReportModule($module, level) {
 }
 
 function codegenStatement(statement, next) {
+  if (statement instanceof ast.ExecuteSQLStatement) {
+    return codegenExecuteSQLStatement(statement, next);
+  }
   if (statement instanceof ast.FormAutomaticStatement) {
     return codegenFormAutomaticStatement(statement, next);
   }
@@ -196,6 +249,123 @@ function codegenStatement(statement, next) {
     return codegenWriteStatement(statement, next);
   }
   throw Error('Unknown statement class: ' + statement.constructor.name);
+}
+
+function codegenExecuteSQLStatement(statement, next) {
+  return [
+    {
+      type: 'ExpressionStatement',
+      expression: {
+        type: 'CallExpression',
+        callee: {
+          type: 'StaticMemberExpression',
+          object: {
+            type: 'IdentifierExpression',
+            name: 'dbPool',
+          },
+          property: 'connect',
+        },
+        arguments: [
+          {
+            type: 'FunctionExpression',
+            isGenerator: false,
+            name: null,
+            params: {
+              type: 'FormalParameters',
+              items: [
+                {
+                  type: 'BindingIdentifier',
+                  name: 'err',
+                },
+                {
+                  type: 'BindingIdentifier',
+                  name: 'client',
+                },
+                {
+                  type: 'BindingIdentifier',
+                  name: 'done',
+                },
+              ],
+            },
+            body: {
+              type: 'FunctionBody',
+              directives: [],
+              statements: [
+                checkErrStatement(),
+                {
+                  type: 'ExpressionStatement',
+                  expression: {
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'StaticMemberExpression',
+                      object: {
+                        type: 'IdentifierExpression',
+                        name: 'client',
+                      },
+                      property: 'query',
+                    },
+                    arguments: [
+                      {
+                        type: 'LiteralStringExpression',
+                        value: statement.query,
+                      },
+                      {
+                        type: 'ArrayExpression',
+                        elements: statement.arguments.map(function(argument) {
+                          return codegenExpression(argument);
+                        }),
+                      },
+                      {
+                        type: 'FunctionExpression',
+                        isGenerator: false,
+                        name: null,
+                        params: {
+                          type: 'FormalParameters',
+                          items: [
+                            {
+                              type: 'BindingIdentifier',
+                              name: 'err',
+                            },
+                            {
+                              type: 'BindingIdentifier',
+                              name: 'result',
+                            },
+                          ],
+                        },
+                        body: {
+                          type: 'FunctionBody',
+                          directives: [],
+                          statements: [
+                            {
+                              type: 'ExpressionStatement',
+                              expression: {
+                                type: 'CallExpression',
+                                callee: {
+                                  type: 'IdentifierExpression',
+                                  name: 'done',
+                                },
+                                arguments: [
+                                  {
+                                    type: 'IdentifierExpression',
+                                    name: 'err',
+                                  },
+                                ],
+                              },
+                            },
+                            checkErrStatement(),
+                          ].concat(next),
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ];
 }
 
 function codegenFormAutomaticStatement(statement, next) {
@@ -281,6 +451,10 @@ function codegenSQLTableStatement(statement, next) {
           property: 'sqlTable',
         },
         arguments: [
+          {
+            type: 'IdentifierExpression',
+            name: 'dbPool',
+          },
           {
             type: 'LiteralStringExpression',
             value: statement.query,

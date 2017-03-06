@@ -61,6 +61,10 @@ function checkActionOrReportModule(context, $module) {
 }
 
 function checkStatement(context, statement) {
+  if (statement instanceof ast.ExecuteSQLStatement) {
+    checkExecuteSQLStatement(context, statement);
+    return;
+  }
   if (statement instanceof ast.FormAutomaticStatement) {
     checkFormAutomaticStatement(context, statement);
     return;
@@ -78,6 +82,12 @@ function checkStatement(context, statement) {
     return;
   }
   throw Error('Unknown statement class: ' + statement.constructor.name);
+}
+
+function checkExecuteSQLStatement(context, statement) {
+  statement.arguments.forEach(function(argument) {
+    checkExpression(context, argument);
+  });
 }
 
 function checkFormAutomaticStatement(context, statement) {
