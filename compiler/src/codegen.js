@@ -469,12 +469,19 @@ function codegenSQLTableStatement(statement, next) {
             name: null,
             params: {
               type: 'FormalParameters',
-              items: [],
+              items: [
+                {
+                  type: 'BindingIdentifier',
+                  name: 'err',
+                },
+              ],
             },
             body: {
               type: 'FunctionBody',
               directives: [],
-              statements: next,
+              statements: [
+                checkErrStatement(),
+              ].concat(next),
             },
           },
         ],
