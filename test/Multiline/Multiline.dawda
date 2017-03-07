@@ -1,8 +1,0 @@
-REPORT Multiline
-
-SET TITLE "Multiline Example"
-
-WRITE "Hello
-World!"
-
-END REPORT

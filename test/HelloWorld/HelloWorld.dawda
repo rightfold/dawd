@@ -1,7 +1,0 @@
-REPORT HelloWorld
-
-SET TITLE "Hello World Example"
-
-WRITE "Hello, world!"
-
-END REPORT

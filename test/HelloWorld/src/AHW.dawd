@@ -1,0 +1,5 @@
+REPORT AHW
+
+WRITE "Hello, world!"
+
+END REPORT
