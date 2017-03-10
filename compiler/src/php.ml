@@ -15,9 +15,9 @@ type program =
   statement list
 
 let rec pretty_expression = function
-  | Variable_expression (name) ->
+  | Variable_expression name ->
       "$" ^ name
-  | String_expression (value) ->
+  | String_expression value ->
       "'" ^ value ^ "'"
   | Function_expression (parameters, body) ->
       "function(" ^
@@ -37,13 +37,13 @@ let rec pretty_expression = function
       "$" ^ variable ^ " = " ^ pretty_expression value;
 
 and pretty_statement = function
-  | Use_statement (name) ->
+  | Use_statement name ->
       "use " ^ name ^ ";\n"
-  | Expression_statement (expression) ->
+  | Expression_statement expression ->
       pretty_expression expression ^ ";\n"
-  | Return_statement (None) ->
+  | Return_statement None ->
       "return;\n"
-  | Return_statement (Some (value)) ->
+  | Return_statement (Some value) ->
       "return " ^ pretty_expression value ^ ";\n"
 
 let pretty_program program =
