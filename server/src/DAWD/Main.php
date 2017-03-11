@@ -7,6 +7,7 @@ final class Main {
   }
 
   public static function main() {
+    session_start();
     $db = pg_connect('user=postgres dbname=dawd');
 
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -31,7 +32,9 @@ final class Main {
         $username = strtolower(trim($_POST['username']));
         $password = trim($_POST['password']);
         $ok = Authentication::authenticate($db, $username, $password);
-        var_dump($ok);
+        if ($ok) {
+          $_SESSION['username'] = $username;
+        }
         break;
       default:
         header('HTTP/1.1 405 Method Not Allowed');
