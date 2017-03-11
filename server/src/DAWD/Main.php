@@ -30,19 +30,8 @@ final class Main {
       case 'POST':
         $username = strtolower(trim($_POST['username']));
         $password = trim($_POST['password']);
-
-        $result = pg_query_params($db, "
-          SELECT password_hash
-          FROM users
-          WHERE username = $1
-        ", [$username]);
-        $row = pg_fetch_row($result);
-        if ($row === FALSE || !password_verify($password, $row[0])) {
-          echo 'bad creds';
-          return;
-        }
-        echo 'welcome';
-
+        $ok = Authentication::authenticate($db, $username, $password);
+        var_dump($ok);
         break;
       default:
         header('HTTP/1.1 405 Method Not Allowed');
